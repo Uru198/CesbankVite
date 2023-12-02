@@ -74,3 +74,90 @@ module.exports.logout = (req, res) => {
 }
 
 
+module.exports.depositar = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { monto } = req.body;
+  
+      const user = await Usuario.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      user.cuentaDeAhorros += parseFloat(monto);
+      await user.save();
+  
+      res.json({ message: 'Depósito exitoso', user });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al realizar el depósito' });
+    }
+  };
+
+
+  module.exports.retirar = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { monto } = req.body;
+  
+      const user = await Usuario.findById(id);
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      if (parseFloat(monto) > user.cuentaDeAhorros) {
+        return res.status(400).json({ error: 'Saldo insuficiente para realizar el retiro' });
+      }
+  
+      user.cuentaDeAhorros -= parseFloat(monto);
+      await user.save();
+  
+      res.json({ message: 'Retiro exitoso', user });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al realizar el retiro' });
+    }
+  };
+
+module.exports.transferir = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { destinatarioId, monto } = req.body;
+  
+      const remitente = await Usuario.findById(id);
+      const destinatario = await Usuario.findById(destinatarioId);
+  
+      if (!remitente || !destinatario) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      if (parseFloat(monto) > remitente.cuentaDeAhorros) {
+        return res.status(400).json({ error: 'Saldo insuficiente para realizar la transferencia' });
+      }
+  
+      remitente.cuentaDeAhorros -= parseFloat(monto);
+      destinatario.cuentaDeAhorros += parseFloat(monto);
+  
+      await remitente.save();
+      await destinatario.save();
+  
+      res.json({ message: 'Transferencia exitosa', remitente, destinatario });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al realizar la transferencia' });
+    }
+  };
+
+  exports.getHistorial = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await Usuario.findById(id);
+      
+      if (!user) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+  
+      // Lógica para obtener y devolver el historial del usuario (puede ser una lista en el modelo del usuario).
+  
+      res.json({ historial: user.historial });
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener el historial' });
+    }
+  };

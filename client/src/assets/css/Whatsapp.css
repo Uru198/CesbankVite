@@ -2,7 +2,7 @@
     display: inline-block;
     transition: all 0.2s ease-in;
     position: relative;
-    left: 620px;
+    right: 620px;
     bottom: 590px;
     overflow: hidden;
     z-index: 1;

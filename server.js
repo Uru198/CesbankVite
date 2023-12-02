@@ -3,6 +3,7 @@ const cors = require("cors");
 const app = express();
 const cookieParser = require('cookie-parser')
 
+
 //Para usar cookies en la aplicación
 app.use(cookieParser());
 

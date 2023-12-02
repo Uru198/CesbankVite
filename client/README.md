@@ -10,5 +10,7 @@
 
 - fuera de la carpeta client npm i bcrypt
 
+- instalar npm install animate.css --save
+
 
 

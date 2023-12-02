@@ -4,11 +4,15 @@ import cerrarsesion from '../assets/img/cerrarsesion.png'
 import arrow from '../assets/img/arrow.png'
 import fondo from '../assets/img/FondoAzul.jpg'
 import axios from "axios";
+import Swal from 'sweetalert2'
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Whatsapp from './Whatsapp'
+import { SaldoContext } from '../components/SaldoContext.jsx';
+import { useContext } from 'react'
 
 const Retiro = () => {
+    const {saldo,  setSaldo} = useContext(SaldoContext);
     const { id } = useParams();
     const [usuario, setUsuario] = useState({});
     const [nombre, setNombre] = useState("");
@@ -17,11 +21,10 @@ const Retiro = () => {
     const [cuenta_ahorros, setCuenta_ahorros] = useState(false);
     const [cuenta_corriente, setCuenta_corriente] = useState(false);
     const [tipo_accion, setTipo_accion] = useState("Retiro");
-    const [saldo, setSaldo] = useState(0);
 
     useEffect(() => {
         // Usar el ID del usuario obtenido de la URL o del estado local
-        axios.get(`http://127.0.0.1:8000/api/usuarios/656619d815cd9cf1f2603b66`, { withCredentials: true })
+        axios.get(`http://127.0.0.1:8000/api/usuarios/65692aefdf2ebe74457ea6b1`, { withCredentials: true })
             .then(res => {
                 setUsuario(res.data);
             })
@@ -37,46 +40,92 @@ const Retiro = () => {
     const [wallets, setWallets] = useState([]);
 
     const [errors, setErrors] = useState({});
+    const [registroOperaciones, setRegistroOperaciones] = useState([]);
 
     const navegate = useNavigate();
 
     const guardarRetiro = e => {
         e.preventDefault();
-        axios.post("http://127.0.0.1:8000/api/deposito/new",{
+        axios.post("http://127.0.0.1:8000/api/deposito/new", {
             nombre,
             monto,
             cedula,
             cuenta_ahorros,
             cuenta_corriente,
             tipo_accion
-        }, {withCredentials: true}
-        )
-        .then((res) => {
-            // Actualizar el saldo después de realizar el depósito
-            setSaldo((prevSaldo) => prevSaldo - parseFloat(monto));
-            // Restablecer el valor del monto
-            setMonto('');
-            // Navegar a la página principal u otro destino deseado
-            navegate('/');
-          })
-          .catch((err) => setErrors(err.response.data.errors));
-      };
+        }, { withCredentials: true })
+            .then((res) => {
+                // Actualizar el saldo después de realizar el depósito
+                
+                // Restablecer el valor del monto
+                setMonto('');
+                // Navegar a la página principal u otro destino deseado
+                navegate('/');
+            })
+            .catch((err) => setErrors(err.response.data.errors));
+    };
 
-    useEffect(() => {
-        axios.get("http://127.0.0.1:8000/api/wallets", { withCredentials: true })
-            .then(res => setWallets(res.data))
-            .catch(err => {
-                if (err.response.status === 401) {
-                    navegate("/loginRegistro");
-                }
-            });
-    }, [navegate])
 
     const cerrarSesion = () => {
         axios.get('http://127.0.0.1:8000/api/logout', { withCredentials: true })
             .then(res => navegate('/loginRegistro'))
             .catch(err => console.log(err));
     }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    
+        if (isNaN(parseFloat(monto))) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "¡Lo siento, algo falló! :(",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            return;
+        }
+    
+        // Verificar si hay suficiente saldo para el retiro
+        else if (parseFloat(monto) > saldo) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "No puedes retirar mas de lo que tienes!",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            monto = null
+            return;
+        }
+        
+        else {
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Retiro realizado correctamente",
+                showConfirmButton: false,
+                timer: 1500
+            });
+              // Actualizar el estado de saldo
+        const nuevoSaldo = saldo - parseFloat(monto);
+        setSaldo(nuevoSaldo);
+    
+        // Limpiar los campos
+        setMonto('');
+        setNombre('');
+        setCedula('');
+        // ... Limpiar otros campos según sea necesario
+    
+        // Actualizar el registro de operaciones (opcional)
+        const mensaje = `-$ ${monto}`;
+        setRegistroOperaciones((prevRegistros) => [...prevRegistros, mensaje]);
+    
+      
+        return;
+        }
+      
+    };
+    
     return (
         <body>
             <img class="fondo" src={fondo} alt=""></img>
@@ -98,7 +147,7 @@ const Retiro = () => {
                             </div>
                             <div class="info-list">
                                 <div class="scroll-container2">
-                                    <form onSubmit={guardarRetiro} class="formDeposito" id="operacionForm">
+                                    <form onSubmit={(e) => {e.preventDefault();handleSubmit(e);guardarRetiro(e);}} class="formDeposito" id="operacionForm">
                                         <div class="labelCard">
                                             <div style={{opacity: 0, visibility: 'hidden'}}>
                                                 <label class="labelDeposito" htmlFor="tipo_accion" >Tipo de operacion:</label>
@@ -132,7 +181,7 @@ const Retiro = () => {
                         <h2>Cuenta de ahorro <p>{usuario.cuentaDeAhorros}</p></h2>
                         <div>
                             <h3>Saldo disponible</h3>
-                            <p id="saldoActual"> $ {saldo.toFixed(2)}</p>
+                            <p id="saldoActual"> $ {saldo}</p>
                         </div>
                     </div>
                 </div>

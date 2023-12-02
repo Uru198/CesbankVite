@@ -8,6 +8,7 @@ module.exports.get_all = (req, res) => {
             res.status(400).json(err);
         });
 }
+//depositos pruebas---
 
 module.exports.create_deposito = (req, res) => {
     Wallet.create(req.body)
@@ -23,4 +24,9 @@ module.exports.get_wallet = (req, res) => {
         .then(wallet => res.json(wallet))
         .catch(err => res.json({message: "Hubo un error "+err}));
 }
+//---------
+
+
+
+
 

@@ -10,17 +10,20 @@ import axios from "axios";
 import {useNavigate, useParams, Link} from "react-router-dom";
 import {useState, useEffect} from "react";
 import Whatsapp from './Whatsapp'
-
+import { useSaldo } from '../components/SaldoContext.jsx';
 
 const Home = () => {
+    const { saldo } = useSaldo();
 
     const {id} = useParams();
     const [usuario, setUsuario] = useState({});
-    console.log({id}.toString)
+    const [operacion, setOperacion] = useState('');
+    const [monto, setMonto] = useState('');
+    const [registroOperaciones, setRegistroOperaciones] = useState([]);
 
     useEffect(() => {
-        // Usar el ID del usuario obtenido de la URL o del estado local
-        axios.get(`http://127.0.0.1:8000/api/usuarios`+{id}, { withCredentials: true })
+        
+        axios.get(`http://127.0.0.1:8000/api/usuarios/65692aefdf2ebe74457ea6b1`, { withCredentials: true })
             .then(res => {
                 setUsuario(res.data);
             })
@@ -53,6 +56,7 @@ const Home = () => {
             .then(res => navegate('/loginRegistro'))
             .catch(err => console.log(err));
     }
+    
 
     return (
         <body>
@@ -126,7 +130,7 @@ const Home = () => {
                         <h2>Cuenta de ahorro <p>{usuario.cuentaDeAhorros}</p></h2>
                         <div>
                             <h3>Saldo disponible</h3>
-                            <p id="saldoActual"> $ 0</p>
+                            <p id="saldoActual"> $ {saldo}</p>
                         </div>
                     </div>
                 </div>

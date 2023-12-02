@@ -7,73 +7,113 @@ import axios from "axios";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Whatsapp from './Whatsapp'
+import Swal from 'sweetalert2'
+import { SaldoContext } from '../components/SaldoContext.jsx';
+import { useContext } from 'react'
 
 const Deposito = () => {
-    
+    const {saldo,  setSaldo} = useContext(SaldoContext);
 
     const { id } = useParams();
     const [usuario, setUsuario] = useState({});
     const [nombre, setNombre] = useState("");
-    const [monto, setMonto] = useState("");
     const [cedula, setCedula] = useState("");
     const [cuenta_ahorros, setCuenta_ahorros] = useState(false);
     const [cuenta_corriente, setCuenta_corriente] = useState(false);
     const [tipo_accion, setTipo_accion] = useState("Deposito");
-    const [saldo, setSaldo] = useState(0);
+    const [wallets, setWallets] = useState({});
+    
 
     useEffect(() => {
         // Usar el ID del usuario obtenido de la URL o del estado local
-        axios.get(`http://127.0.0.1:8000/api/usuarios/`+id, { withCredentials: true })
+        axios.get(`http://127.0.0.1:8000/api/usuarios/65692aefdf2ebe74457ea6b1`, { withCredentials: true })
             .then(res => {
                 setUsuario(res.data);
             })
             .catch(err => console.log(err));
     }, [id]);
 
+ 
     //WhatSapp
 
     const phoneNumber = '+573225962363';
 
     const defaultMessage = 'Hola, me podrias ayudar en...';
 
-    const [wallets, setWallets] = useState([]);
+
 
     const [errors, setErrors] = useState({});
 
+    
+
+    const navegate = useNavigate();
+
+
+    const cerrarSesion = () => {
+        axios.get('http://127.0.0.1:8000/api/logout', { withCredentials: true })
+            .then(res => navegate('/loginRegistro'))
+            .catch(err => console.log(err));
+    }
+
+    const [operacion, setOperacion] = useState('');
+    const [monto, setMonto] = useState('');
+    const [registroOperaciones, setRegistroOperaciones] = useState([]);
+
     const guardarDeposito = e => {
         e.preventDefault();
-        axios.post("http://127.0.0.1:8000/api/deposito/new",{
+        axios.post("http://127.0.0.1:8000/api/deposito/new", {
             nombre,
             monto,
             cedula,
             cuenta_ahorros,
             cuenta_corriente,
             tipo_accion
-        }, {withCredentials: true}
-        )
-        .then((res) => {
-            // Actualizar el saldo después de realizar el depósito
-            setSaldo((prevSaldo) => prevSaldo + parseFloat(monto));
-            // Restablecer el valor del monto
-            setMonto('');
-            // Navegar a la página principal u otro destino deseado
-            navegate('/');
-          })
-          .catch((err) => setErrors(err.response.data.errors));
-      };
+        }, { withCredentials: true })
+            .then((res) => {
+            
+                setMonto('');
+             
+                navegate('/');
+            })
+            .catch((err) => setErrors(err.response.data.errors));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (isNaN(parseFloat(monto))) {
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "lo siento algo fallo :(",
+                showConfirmButton: false,
+                timer: 1500
+              });
+            return;
+        }
+
+     
+        const nuevoSaldo = saldo + parseFloat(monto);
+        setSaldo(nuevoSaldo);
+
+       
+        setOperacion('');
+        setMonto('');
+        setNombre('');
+        setCedula('');
+   
+        const mensaje = `$ ${monto}`;
+        setRegistroOperaciones((prevRegistros) => [...prevRegistros, mensaje]);
+        Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Deposito realizado correctamente",
+            showConfirmButton: false,
+            timer: 1500
+          });
+    };
 
 
-    const navegate = useNavigate();
-
-  
-    const cerrarSesion = () => {
-        axios.get('http://127.0.0.1:8000/api/logout', { withCredentials: true })
-            .then(res => navegate('/loginRegistro'))
-            .catch(err => console.log(err));
-    }
-    
-
-      
     return (
         <body>
             <img class="fondo" src={fondo} alt=""></img>
@@ -95,23 +135,23 @@ const Deposito = () => {
                             </div>
                             <div class="info-list">
                                 <div class="scroll-container2">
-                                    <form onSubmit={guardarDeposito} class="formDeposito" id="operacionForm">
+                                    <form onSubmit={(e) => {e.preventDefault();handleSubmit(e);guardarDeposito(e);}} class="formDeposito" id="operacionForm">
                                         <div class="labelCard">
-                                            <div style={{opacity: 0, visibility: 'hidden'}}>
+                                            <div style={{ opacity: 0, visibility: 'hidden' }}>
                                                 <label class="labelDeposito" htmlFor="tipo_accion" >Tipo de operacion:</label>
-                                                <input type="text" id="tipo_accion" name="tipo_accion" value={tipo_accion}  onChange={e => setTipo_accion(e.target.value)}/>
+                                                <input type="text" id="tipo_accion" name="tipo_accion" value={tipo_accion} onChange={e => setTipo_accion(e.target.value)} />
                                             </div>
                                             <div>
                                                 <label htmlFor="nombre" class="labelDeposito" >Nombre</label>
-                                                <input type="text" id="nombre" name="nombre"  class="inputDeposito input-name"  value={nombre} onChange={e => setNombre(e.target.value)}/>
-                                                {errors.nombre ? <span className="text-danger">{errors.nombre.message}</span>: null}
+                                                <input type="text" id="nombre" name="nombre" class="inputDeposito input-name" value={nombre} onChange={e => setNombre(e.target.value)} />
+                                                {errors.nombre ? <span className="text-danger">{errors.nombre.message}</span> : null}
                                                 <label htmlFor="cedula" class="labelDeposito">Cedula</label>
-                                                <input type="text" id="cedula"  name="cedula" class="inputDeposito input-email" value={cedula} onChange={e => setCedula(e.target.value)} />
-                                                {errors.cedula ? <span className="text-danger">{errors.cedula.message}</span>: null}
+                                                <input type="text" id="cedula" name="cedula" class="inputDeposito input-email" value={cedula} onChange={e => setCedula(e.target.value)} />
+                                                {errors.cedula ? <span className="text-danger">{errors.cedula.message}</span> : null}
                                             </div>
                                             <div>
                                                 <label htmlFor="monto" class="labelDeposito" >Monto</label>
-                                                <input type="number" id="monto" name='monto' class="inputDeposito input-password" value={monto} onChange={(e) => setMonto(e.target.value)}/>
+                                                <input type="number" id="monto" name='monto' class="inputDeposito input-password" value={monto} onChange={(e) => setMonto(e.target.value)} />
                                                 <label className="labelDeposito" style={{ paddingBlock: '5px' }}>Tipo de cuenta</label>
                                                 <select class="inputDeposito input-password">
                                                     <option value={cuenta_ahorros} id="cuenta_ahorros" name='cuenta_ahorros' onChange={(e) => setCuenta_ahorros(e.target.value)}>Ahorros</option>
@@ -125,11 +165,12 @@ const Deposito = () => {
                             </div>
                         </div>
                     </section>
+                    
                     <div class="card-hover__extra">
                         <h2>Cuenta de ahorro <p>{usuario.cuentaDeAhorros}</p></h2>
                         <div>
                             <h3>Saldo disponible</h3>
-                            <p id="saldoActual"> ${saldo.toFixed(2)}</p>
+                            <p id="saldoActual"> $ {saldo}</p>
                         </div>
                     </div>
                 </div>

@@ -9,7 +9,7 @@ import Deposito from './components/Deposito.jsx'
 import Retiro from './components/Retiro.jsx'
 import Transferencia from './components/Transferencia.jsx'
 import Historial from './components/Historial.jsx'
-
+import { SaldoProvider } from './components/SaldoContext.jsx';
 
 let router = createBrowserRouter ([
   {
@@ -40,6 +40,8 @@ let router = createBrowserRouter ([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router}/>
+    <SaldoProvider>
+      <RouterProvider router={router}/>
+    </SaldoProvider>
   </React.StrictMode>,
 )

@@ -73,11 +73,11 @@ section{
     height: 20px;
     border-radius: 5px 0 0 5px;
     outline: none;
-    color: #9DBFAF;
+
   }
 
   .searchTerm:focus{
-    color: #00B4CC;
+    color: #000000;
   }
   
   .searchButton {
@@ -583,20 +583,8 @@ section{
     display: flex;
   }
   
-  .searchTerm {
-    width: 100%;
-    border: 3px solid #00B4CC;
-    border-right: none;
-    padding: 15px;
-    height: 20px;
-    border-radius: 5px 0 0 5px;
-    outline: none;
-    color: #9DBFAF;
-  }
 
-  .searchTerm:focus{
-    color: #00B4CC;
-  }
+ 
   
   .searchButton {
     width: 5px;
@@ -913,123 +901,3 @@ form, input, span {
         justify-content: space-between;
     }
 }
-* factura */
-.animate__animated.animate__bounceInRight {
-    --animate-duration: 2s;
-  }
-
-.factura {
-    position: absolute;
-    top: 150px;
-    right: 120px;
-    width: 200px;
-    height: 500px;
-    display: none;
-    place-items: center;
-}
-.botonFactura {
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 10px;
-    font-size: 55%;
-}
-
-.value1 {
-    background-color: #DDDDDD;
-    border-radius: 5px;
-    width: 150px;
-    color: var(--Very-light-pink);
-    font-size: var(--md);
-    margin: 0.5rem 0 25px 0;
-}
-
-
-
-.title {
-    font-size: var(--lg);
-    text-align: start;
-    background-color: var(--DodgerBlue);
-    width: 190px;
-    margin: 0;
-    padding-bottom: 15px;
-    text-align: center;
-    color: var(--background);
-    margin-bottom: 15px;
-    
-}
-
-.subtitle {
-    color: var(--Very-light-pink);
-    font-size: var(--md);
-    /* el font-weight es el grosor de nuestra letra */
-    font-weight: 300;
-    margin-top: 0;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-.form-factura {
-    display: flex;
-    flex-direction: column;
-    width: 190px;
-    border-bottom: 15px solid var(--DodgerBlue);
-    border-top: 30px solid var(--DodgerBlue);
-    border-radius: 10px;
-   box-shadow: #000000;
-}
-
-
-
-.label {
-    font-size: var(--sm);
-    font-weight: bold;
-    margin-bottom: .25rem;
-}
-.secondary-button {
-    background-color: var(--white);
-    border-radius: 0.5rem;
-    border: 1px solid var(--Hospital-green);
-    color: var(--Hospital-green);
-    width: 100%;
-    cursor: pointer;
-    font-size: var(--md);
-    font-weight: bold;
-    height: 3.125rem;
-}
-.value {
-    color: var(--Very-light-pink);
-    font-size: var(--md);
-    margin: 0.5rem 0 2rem 0;
-}
- 
-.form-factura div {
-    display: flex;
-    flex-direction: column;
-}
-
-.login-button {
-    margin-top: 0.875rem;
-    margin-bottom: 1.875rem;
-}
-
-/* esta medida responsive esta hecha para medidas grandes apartir de una medidas pequeña si se amplia se hara el cambio correspondiente */
-@media (max-width: 40rem) {
-    .logo {
-        /* colocamos display: block para que se pueda visualizar nuevamente nuestro logo */
-        display: block;
-    }
-}
-/* esta medida responsive esta hecha para medidas grandes apartir de una medidas pequeña si se amplia se hara el cambio correspondiente */
-@media (max-width: 40rem) {
-    .form-container-factura {
-        /* colocamos display: block para que se pueda visualizar nuevamente nuestro logo */
-        height: 100%;
-    }
-    .form-factura {
-        /* colocamos display: block para que se pueda visualizar nuevamente nuestro logo */
-        height: 100%;
-        justify-content: space-between;
-    }
-}
-
